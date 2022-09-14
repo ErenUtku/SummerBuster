@@ -4,17 +4,22 @@ using UnityEngine;
 
 public class PlayerRingController : MonoBehaviour
 {
-    [SerializeField] List<RingType> allRings;
+    [SerializeField] private List<RingType> allRings;
+    public GameObject ringFolder;
     public GhostRingActivator ghostRing;
     public COLOR bodyColor;
+
+    private Vector3 ringPosition;
     
     void Awake()
     {
         FindBodyColor();
         ghostRing.SetTransformGhostRingActivator(allRings.Count);
+
+        ringPosition = new Vector3(transform.position.x, 9, transform.position.z);
     }    
 
-    private void FindBodyColor()
+    public void FindBodyColor()
     {
         var lastRingInt = allRings.Count;
         if (lastRingInt == 0)
@@ -22,7 +27,7 @@ public class PlayerRingController : MonoBehaviour
             bodyColor = COLOR.COLORFUL;
             return;
         }
-
+        
         var lastItem = allRings[lastRingInt - 1];
         lastItem.isActive = true;
         bodyColor = lastItem.ringData.color;
@@ -33,5 +38,32 @@ public class PlayerRingController : MonoBehaviour
         allRings.Add(newRing);
     }
 
+    public void RemoveRing(RingType oldRing)
+    {
+        allRings.Remove(oldRing);
+    }
+
+    public Vector3  SetDestination()
+    {
+        return ringPosition;
+    }
+
+    public Vector3 SetDefaultRingPosition()
+    {
+        var target = allRings.Count * 1.5f;
+        return new Vector3(transform.position.x, target, transform.position.z);
+    }
+    
+    public bool CheckColorOfList(out bool value)
+    {
+        foreach (var ring in allRings)
+        {
+            if (ring.ringData.color != bodyColor)
+            {
+                return value = false;
+            }
+        }
+        return value = true;
+    }
   
 }

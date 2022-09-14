@@ -9,7 +9,7 @@ public class GhostRingActivator : MonoBehaviour
 
     private void Start()
     {
-        DeactivateGhostObject();
+        Invoke(nameof(DeactivateGhostObject),0.1f);
     }
 
     public void ActivateGhostObject(RingType selectedRing)

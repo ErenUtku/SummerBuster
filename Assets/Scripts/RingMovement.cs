@@ -7,25 +7,32 @@ public class RingMovement : MonoBehaviour
     private Vector3 mOffset;
     private float mZCoord;
 
-    private Vector3 defaultPosition;
+    public Vector3 defaultPosition;
+    public Vector3 targetPosition;
+
     private bool doMoveActive=true;
 
+    private PlayerRingController playerRingController;
     private GhostRingActivator _ghostRing;
-    private bool ringActivation;  
+    private RingType ringType;
     
     private void Start()
     {
-        ringActivation = GetComponent<RingType>().isActive;
-        defaultPosition = transform.position + new Vector3(0,3,0);
+        playerRingController = GetComponentInParent<PlayerRingController>();
+        ringType = GetComponent<RingType>();
+        defaultPosition = transform.position;
 
-        _ghostRing = GetComponentInParent<PlayerRingController>().ghostRing;
+        targetPosition = playerRingController.SetDestination();
+        _ghostRing = playerRingController.ghostRing;
     }
 
     private void OnMouseDown()
     {
-        if (!ringActivation) return;
+        if (!ringType.isActive) return;
 
         _ghostRing.isSelected = true;
+
+        playerRingController.RemoveRing(ringType);
 
         if (doMoveActive)
         {
@@ -34,11 +41,10 @@ public class RingMovement : MonoBehaviour
             mZCoord = Camera.main.WorldToScreenPoint(gameObject.transform.position).z;
             mOffset = gameObject.transform.position - GetMouseWorldPos();
             mOffset.z = -3;
-
-            var newVector = defaultPosition.y + 3;
-            transform.DOMoveY(newVector, 0.3f).SetEase(Ease.Linear).OnComplete(() =>
+            
+            transform.DOMove(targetPosition, 0.3f).SetEase(Ease.Linear).OnComplete(() =>
              {
-                 var newVectorZ = new Vector3( defaultPosition.x, newVector, defaultPosition.z - 2);
+                 var newVectorZ = new Vector3(targetPosition.x, targetPosition.y, targetPosition.z - 2);
                  transform.DOMove(newVectorZ, 0.3f).SetEase(Ease.Linear).OnComplete(() => { doMoveActive = true; });
              });
         }
@@ -46,7 +52,7 @@ public class RingMovement : MonoBehaviour
 
     private void OnMouseDrag()
     {  
-        if (!ringActivation) return;
+        if (!ringType.isActive) return;
 
         if (doMoveActive)
         {
@@ -69,19 +75,32 @@ public class RingMovement : MonoBehaviour
 
     private void OnMouseUp()
     {
-        if (!ringActivation) return;
+        if (!ringType.isActive) return;
 
         DOTween.KillAll();
 
-        _ghostRing.isSelected = false;
-
         doMoveActive = false;
-        var distanceCalculation = Vector3.Distance(transform.position,defaultPosition);
-        
-        transform.DOMove(defaultPosition, (distanceCalculation/50)).SetEase(Ease.Linear).OnComplete(() => 
+
+        var distanceCalculation = Vector3.Distance(transform.position,defaultPosition);       
+
+        //if() HICBIR SEKILDE OTURMADIYSA{} targetPOs ve defaultpos degisecek.
+        transform.DOMove(targetPosition, (distanceCalculation/50)).SetEase(Ease.Linear).OnComplete(() => 
         {
-            var newVector = defaultPosition.y - 3;
-            transform.DOMoveY(newVector, 0.5f).SetEase(Ease.OutBounce).OnComplete(() => { doMoveActive = true; });
+            transform.DOMove(defaultPosition, 0.5f).SetEase(Ease.OutBounce).OnComplete(() => 
+            {
+                doMoveActive = true;        
+                _ghostRing.isSelected = false;
+
+                var newRingController = GetComponentInParent<PlayerRingController>();
+                newRingController.AddRing(ringType);
+
+                playerRingController.FindBodyColor();
+                newRingController.FindBodyColor();
+
+                playerRingController = newRingController;
+
+                LevelEndController.Instance.CheckLevelEnd();
+            });
         });
     }
 
