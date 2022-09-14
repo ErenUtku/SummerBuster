@@ -71,7 +71,7 @@ public class PlayerRingController : MonoBehaviour
         }
         return value = true;
     }
-  
+
     public void PlayAnimation()
     {
         animator.SetBool("LevelEnd", true);

@@ -9,28 +9,33 @@ public class RingMovement : MonoBehaviour
 
     public Vector3 defaultPosition;
     public Vector3 targetPosition;
-
+    
+    public Vector3 oldDefault;
+    public Vector3 oldTarget;
+    
     public bool doMoveActive=true;
 
-    private PlayerRingController playerRingController;
+    public PlayerRingController oldRingController;
     private GhostRingActivator _ghostRing;
     private RingType ringType;
+
+    private Tween firstTween;
     
     private void Start()
     {
-        playerRingController = GetComponentInParent<PlayerRingController>();
+        oldRingController = GetComponentInParent<PlayerRingController>();
         ringType = GetComponent<RingType>();
 
         Invoke(nameof(SetPosition), 0.1f);
-        _ghostRing = playerRingController.ghostRing;
+        _ghostRing = oldRingController.ghostRing;
     }
 
     private void OnMouseDown()
     {
         if (!ringType.isActive) return;
-        if (!doMoveActive) return;
+
+        oldRingController.RemoveRing(ringType);
         
-        playerRingController.RemoveRing(ringType);
         if (doMoveActive == true)
         {
             doMoveActive = false;
@@ -40,10 +45,11 @@ public class RingMovement : MonoBehaviour
             mOffset = gameObject.transform.position - GetMouseWorldPos();
             mOffset.z = -3;
 
+            firstTween=
             transform.DOMove(targetPosition, 0.3f).SetEase(Ease.Linear).OnComplete(() =>
             {
                 var newVectorZ = new Vector3(targetPosition.x, targetPosition.y, targetPosition.z - 2);
-                transform.DOMove(newVectorZ, 0.3f).SetEase(Ease.Linear).OnComplete(() => {doMoveActive = true; });
+                transform.DOMove(newVectorZ, 0.3f).SetEase(Ease.Linear).OnComplete(() => { doMoveActive = true; });
             });
         }
     }
@@ -71,11 +77,15 @@ public class RingMovement : MonoBehaviour
         return Camera.main.ScreenToWorldPoint(mousePoint);
     }
 
-    private void OnMouseUp()
+    private void  OnMouseUp()
     {
         if (!ringType.isActive) return;
-
+        
         DOTween.KillAll();
+        
+        oldRingController.FindBodyColor();
+        var newRingController = GetComponentInParent<PlayerRingController>();
+        oldRingController = newRingController;
         
         var distanceCalculation = Vector3.Distance(transform.position, targetPosition);
 
@@ -86,16 +96,14 @@ public class RingMovement : MonoBehaviour
             transform.DOMove(defaultPosition, 0.5f).SetEase(Ease.OutBounce).OnComplete(() =>
             {
                 _ghostRing.isSelected = false;
-                playerRingController.FindBodyColor();
-
-                var newRingController = GetComponentInParent<PlayerRingController>();
+                LevelEndController.Instance.CheckLevelEnd();
+                
                 newRingController.AddRing(ringType);
                 newRingController.FindBodyColor();
-
-                playerRingController = newRingController;
-
-                LevelEndController.Instance.CheckLevelEnd();
-                    
+                
+                oldTarget = targetPosition;
+                oldDefault= defaultPosition;
+                
                 Invoke(nameof(DelayDoMoveActive),2f);
             });
         });
@@ -109,7 +117,9 @@ public class RingMovement : MonoBehaviour
     private void SetPosition()
     {
         defaultPosition = transform.position;
-        targetPosition = playerRingController.SetDestination();
+        oldDefault = defaultPosition;
+        targetPosition = oldRingController.SetDestination();
+        oldTarget = targetPosition;
     }
 
     private void DelayDoMoveActive()
