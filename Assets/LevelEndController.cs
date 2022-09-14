@@ -8,6 +8,8 @@ public class LevelEndController : MonoBehaviour
     
     public bool checkLevelEnd;
     public static LevelEndController Instance;
+
+    private PlayerRingController freePlayer;
     private void Awake()
     {
         Instance = this;
@@ -18,12 +20,17 @@ public class LevelEndController : MonoBehaviour
         int checkPlayerCounter=0;
         foreach (var player in players)
         {
+            if (player.bodyColor == COLOR.COLORFUL)
+            {
+                freePlayer = player;
+            }
+
             if(player.CheckColorOfList(out checkLevelEnd)==true)
             {
                 checkPlayerCounter++;
                 if (checkPlayerCounter == players.Length && CheckPlayerHasNothing())
                 {
-                    Debug.Log("Level End");
+                    freePlayer.PlayAnimation();
                 }
             }
         }

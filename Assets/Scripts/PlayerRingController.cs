@@ -8,7 +8,8 @@ public class PlayerRingController : MonoBehaviour
     public GameObject ringFolder;
     public GhostRingActivator ghostRing;
     public COLOR bodyColor;
-
+    [SerializeField] Animator animator;
+ 
     private Vector3 ringPosition;
     
     void Awake()
@@ -27,7 +28,12 @@ public class PlayerRingController : MonoBehaviour
             bodyColor = COLOR.COLORFUL;
             return;
         }
-        
+
+        foreach (var ring in allRings)
+        {
+            ring.isActive = false;
+        }
+
         var lastItem = allRings[lastRingInt - 1];
         lastItem.isActive = true;
         bodyColor = lastItem.ringData.color;
@@ -50,7 +56,7 @@ public class PlayerRingController : MonoBehaviour
 
     public Vector3 SetDefaultRingPosition()
     {
-        var target = allRings.Count * 1.5f;
+        var target = (allRings.Count) * 1.5f;
         return new Vector3(transform.position.x, target, transform.position.z);
     }
     
@@ -66,4 +72,8 @@ public class PlayerRingController : MonoBehaviour
         return value = true;
     }
   
+    public void PlayAnimation()
+    {
+        animator.SetBool("LevelEnd", true);
+    }
 }

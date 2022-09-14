@@ -23,6 +23,7 @@ public class PlayerCollisionController : MonoBehaviour
             if (ringObject.gameObject.GetComponent<RingType>().ringData.color == ringController.bodyColor || ringController.bodyColor == COLOR.COLORFUL)
             {
                 ringObject.gameObject.transform.parent = ringController.ringFolder.transform;
+
                 ringObject.targetPosition = ringController.SetDestination();
                 ringObject.defaultPosition = ringController.SetDefaultRingPosition();
             }
