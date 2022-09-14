@@ -5,6 +5,7 @@ using UnityEngine;
 public class GhostRingActivator : MonoBehaviour
 {
     public RingType[] ringType;
+    public bool isSelected;
 
     private void Start()
     {
@@ -13,11 +14,14 @@ public class GhostRingActivator : MonoBehaviour
 
     public void ActivateGhostObject(RingType selectedRing)
     {
-        foreach (var ring in ringType)
+        if (!isSelected)
         {
-            if (ring.ringData.color == selectedRing.ringData.color)
+            foreach (var ring in ringType)
             {
-                ring.gameObject.SetActive(true);
+                if (ring.ringData.color == selectedRing.ringData.color)
+                {
+                    ring.gameObject.SetActive(true);
+                }
             }
         }
     }
@@ -29,4 +33,10 @@ public class GhostRingActivator : MonoBehaviour
             ring.gameObject.SetActive(false);
         }
     }
+
+    public void SetTransformGhostRingActivator(float value)
+    {
+        transform.position = new Vector3(transform.position.x, 1.5f*value, transform.position.z);
+    }
+    
 }

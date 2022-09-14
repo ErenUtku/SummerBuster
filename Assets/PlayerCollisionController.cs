@@ -4,15 +4,19 @@ using UnityEngine;
 
 public class PlayerCollisionController : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    private GhostRingActivator ghostRing;
+
+    private void Start()
     {
-        
+        ghostRing = gameObject.GetComponent<PlayerRingController>().ghostRing;
+    }
+    private void OnTriggerEnter(Collider other)
+    {
+        ghostRing.ActivateGhostObject(other.GetComponent<RingType>());
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OnTriggerExit(Collider other)
     {
-        
+        ghostRing.DeactivateGhostObject();
     }
 }

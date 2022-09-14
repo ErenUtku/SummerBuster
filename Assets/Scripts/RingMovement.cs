@@ -10,17 +10,22 @@ public class RingMovement : MonoBehaviour
     private Vector3 defaultPosition;
     private bool doMoveActive=true;
 
+    private GhostRingActivator _ghostRing;
     private bool ringActivation;  
     
     private void Start()
     {
         ringActivation = GetComponent<RingType>().isActive;
         defaultPosition = transform.position + new Vector3(0,3,0);
+
+        _ghostRing = GetComponentInParent<PlayerRingController>().ghostRing;
     }
 
     private void OnMouseDown()
     {
         if (!ringActivation) return;
+
+        _ghostRing.isSelected = true;
 
         if (doMoveActive)
         {
@@ -67,6 +72,8 @@ public class RingMovement : MonoBehaviour
         if (!ringActivation) return;
 
         DOTween.KillAll();
+
+        _ghostRing.isSelected = false;
 
         doMoveActive = false;
         var distanceCalculation = Vector3.Distance(transform.position,defaultPosition);

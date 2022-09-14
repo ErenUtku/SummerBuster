@@ -5,13 +5,13 @@ using UnityEngine;
 public class PlayerRingController : MonoBehaviour
 {
     [SerializeField] List<RingType> allRings;
+    public GhostRingActivator ghostRing;
     public COLOR bodyColor;
-
-    [SerializeField] private GhostRingActivator ghostObject;
     
     void Awake()
     {
         FindBodyColor();
+        ghostRing.SetTransformGhostRingActivator(allRings.Count);
     }    
 
     private void FindBodyColor()
