@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using System;
 
 public class LevelEndController : MonoBehaviour
 {
@@ -12,12 +13,19 @@ public class LevelEndController : MonoBehaviour
     private PlayerRingController _freePlayer;
     private bool checkLevelEnd;
 
+    public Action levelEnd;
+
     public static LevelEndController instance;
     private void Awake()
     {
         instance = this;
         levelEndObject.GetComponent<Button>().onClick.AddListener(() => LevelRestart());
         levelEndObject.SetActive(false);
+    }
+
+    private void Start()
+    {
+        levelEnd += LevelEndEvent;
     }
 
     public void CheckLevelEnd()
@@ -39,9 +47,9 @@ public class LevelEndController : MonoBehaviour
 
                     //Player Dance
                     _freePlayer.gameObject.GetComponent<PlayerAnimationController>().PlayAnimation();
-                    
-                    //UI ACTIVATION
-                    levelEndObject.SetActive(true);
+
+                    //Level End Event
+                    TriggerLevelEnd();
                 }
             }
         }
@@ -59,8 +67,20 @@ public class LevelEndController : MonoBehaviour
         return false;
     }
 
+    private void LevelEndEvent()
+    {
+        levelEndObject.SetActive(true);
+    }
+
     private void LevelRestart()
     {
         Application.LoadLevel(Application.loadedLevel);
     }
+
+    private void TriggerLevelEnd()
+    {
+        levelEnd.Invoke();
+    }
+
+
 }

@@ -19,7 +19,8 @@ public class PlayerRingController : MonoBehaviour
     
  
     private Vector3 _ringPosition;
-    
+
+    private LevelEndController levelEnd;
     void Awake()
     {
         FindBodyColor();
@@ -27,7 +28,12 @@ public class PlayerRingController : MonoBehaviour
 
         var position = transform.position;
         _ringPosition = new Vector3(position.x, 9, position.z);
-    }    
+    }
+    private void Start()
+    {
+        levelEnd = LevelEndController.instance;
+        levelEnd.levelEnd += DeactivateAllRing;
+    }
 
     public void FindBodyColor()
     {
