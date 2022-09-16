@@ -4,20 +4,29 @@ using UnityEngine;
 
 public class PlayerRingController : MonoBehaviour
 {
+    [Header("Playground Values")]
+
     [SerializeField] private List<RingType> allRings;
-    public GameObject ringFolder;
+
     public GhostRingActivator ghostRing;
+    public GameObject ringFolder;
+
+    [Space]
+
+    [Header("Player Data Values")]
+    [SerializeField] private Animator animator;
     public COLOR bodyColor;
-    [SerializeField] Animator animator;
+    
  
-    private Vector3 ringPosition;
+    private Vector3 _ringPosition;
     
     void Awake()
     {
         FindBodyColor();
         ghostRing.SetTransformGhostRingActivator(allRings.Count);
 
-        ringPosition = new Vector3(transform.position.x, 9, transform.position.z);
+        var position = transform.position;
+        _ringPosition = new Vector3(position.x, 9, position.z);
     }    
 
     public void FindBodyColor()
@@ -42,22 +51,34 @@ public class PlayerRingController : MonoBehaviour
     public void AddRing(RingType newRing)
     {
         allRings.Add(newRing);
+        ghostRing.SetTransformGhostRingActivator(allRings.Count);
+        ghostRing.DeactivateGhostObject();
     }
 
     public void RemoveRing(RingType oldRing)
     {
         allRings.Remove(oldRing);
+        ghostRing.SetTransformGhostRingActivator(allRings.Count);
+    }
+
+    public void DeactivateAllRing()
+    {
+        foreach (var ring in allRings)
+        {
+            ring.isActive = false;
+        }
     }
 
     public Vector3  SetDestination()
     {
-        return ringPosition;
+        return _ringPosition;
     }
 
     public Vector3 SetDefaultRingPosition()
     {
         var target = (allRings.Count) * 1.5f;
-        return new Vector3(transform.position.x, target, transform.position.z);
+        var position = transform.position;
+        return new Vector3(position.x, target, position.z);
     }
     
     public bool CheckColorOfList(out bool value)
@@ -70,10 +91,5 @@ public class PlayerRingController : MonoBehaviour
             }
         }
         return value = true;
-    }
-
-    public void PlayAnimation()
-    {
-        animator.SetBool("LevelEnd", true);
     }
 }

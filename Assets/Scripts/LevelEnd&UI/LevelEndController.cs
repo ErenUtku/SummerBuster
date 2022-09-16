@@ -2,27 +2,33 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
+
 public class LevelEndController : MonoBehaviour
 {
-    [SerializeField] PlayerRingController[] players;
+    [SerializeField] private GameObject levelEndObject;
+    [SerializeField] private PlayerRingController[] players;
     
-    public bool checkLevelEnd;
-    public static LevelEndController Instance;
+    private PlayerRingController _freePlayer;
+    private bool checkLevelEnd;
 
-    private PlayerRingController freePlayer;
+    public static LevelEndController instance;
     private void Awake()
     {
-        Instance = this;
+        instance = this;
+        levelEndObject.GetComponent<Button>().onClick.AddListener(() => LevelRestart());
+        levelEndObject.SetActive(false);
     }
 
     public void CheckLevelEnd()
     {
-        int checkPlayerCounter=0;
+        var checkPlayerCounter = 0;
+        
         foreach (var player in players)
         {
             if (player.bodyColor == COLOR.COLORFUL)
             {
-                freePlayer = player;
+                _freePlayer = player;
             }
 
             if(player.CheckColorOfList(out checkLevelEnd)==true)
@@ -30,7 +36,12 @@ public class LevelEndController : MonoBehaviour
                 checkPlayerCounter++;
                 if (checkPlayerCounter == players.Length && CheckPlayerHasNothing())
                 {
-                    freePlayer.PlayAnimation();
+
+                    //Player Dance
+                    _freePlayer.gameObject.GetComponent<PlayerAnimationController>().PlayAnimation();
+                    
+                    //UI ACTIVATION
+                    levelEndObject.SetActive(true);
                 }
             }
         }
@@ -46,5 +57,10 @@ public class LevelEndController : MonoBehaviour
             }
         }
         return false;
+    }
+
+    private void LevelRestart()
+    {
+        Application.LoadLevel(Application.loadedLevel);
     }
 }

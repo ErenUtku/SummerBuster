@@ -6,10 +6,10 @@ public class GhostRingActivator : MonoBehaviour
 {
     public RingType[] ringType;
     public bool isSelected;
-
+  
     private void Start()
     {
-        Invoke(nameof(DeactivateGhostObject),0.1f);
+        Invoke(nameof(DeactivateGhostObject),0.1f);       
     }
 
     public void ActivateGhostObject(RingType selectedRing)
